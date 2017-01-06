@@ -57,6 +57,10 @@ plotly_POST(q, filename = "FAERS Reports Over Time")
 ```
 
 
+
+
+
+
 Drug Data Entries
 ```{r}
 
@@ -137,6 +141,9 @@ p
 
 plotly_POST(p, filename = "Drug Data and Reports Over Time")
 ```
+
+
+
 
 
 Ratio of Drug Entries to Reports
@@ -261,4 +268,57 @@ p
 
 plotly_POST(p, filename = "Adverse Reactions per Report Over Time")
 ```
+
+
+Serious Outcomes Combined w/ Reports
+```{r}
+####################
+y <- list(title = "# of Serious Outcomes or Reports")
+
+p <- plot_ly(all_ratios, 
+             type="scatter", 
+             mode="markers+line",
+             x = ~frxnyear, 
+             y = ~outc,
+             hoverinfo = 'text',
+             line=list(color="blue"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="blue", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$outc),
+             name="# of Serious Outcomes")
+p <- layout(p, title = "# of Reports or Serious Outcomes Per Quarter",
+            xaxis = x,
+            yaxis = y,            
+            margin = marg,
+            legend = list(x = 0.1, 
+                          y = 0.9)
+            )
+
+
+p <- add_trace(p, 
+          x = ~frxnyear, 
+          y = ~demo, 
+          name="# of Reports", 
+          mode="markers+line",
+          hoverinfo = "text",
+          line=list(color="red"),
+          marker=list(size=8,
+                      color="#FFFFFF",
+                      line=list(color="red",
+                                width=2)),
+          text = ~paste("<b>", 
+                        all_ratios$QY, 
+                        "</b><br />",  
+                        all_ratios$demo))
+
+p
+
+plotly_POST(p, filename = "Serious Outcomes and Reports Over Time")
+```
+
 
