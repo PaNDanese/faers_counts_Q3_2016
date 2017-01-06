@@ -1,0 +1,264 @@
+---
+title: "View of FAERS Counts"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+
+```{r}
+library(plotly)
+plotly_credentials <- read.csv("plotly_credentials.csv", header=F)
+Sys.setenv("plotly_username"=plotly_credentials[1,1])
+Sys.setenv("plotly_api_key"=plotly_credentials[2,1])
+
+all_ratios <- read.csv("all_ratios.csv")
+
+marg <- list(
+  l = 50,
+  r = 50,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+```
+
+
+ Reports per Quarter
+```{r}
+
+x <- list(title = "Year")
+y <- list(title = "# of Reports")
+
+q <- plot_ly(all_ratios, 
+             x = ~frxnyear, 
+             y = ~demo, 
+             type = 'scatter', 
+             mode = 'lines+markers',
+             hoverinfo = 'text',
+             line=list(color="blue"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="blue", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$demo))
+
+q <- layout(q, 
+            title = "# of AERS / FAERS Reports Per Quarter",
+            xaxis = x,
+            yaxis = y,            
+            margin = marg)
+
+q
+plotly_POST(q, filename = "FAERS Reports Over Time")
+```
+
+
+Drug Data Entries
+```{r}
+
+#####################################
+y <- list(title = "# of Drug Data Entries")
+
+q <- plot_ly(all_ratios, 
+             x = ~frxnyear, 
+             y = ~drug, 
+             type = 'scatter', 
+             mode = 'lines+markers',
+             hoverinfo = 'text',
+             line=list(color="red"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="red", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$drug))
+q <- layout(q, 
+            title = "# of Drug Data Entries Per Quarter",
+            xaxis = x,
+            yaxis = y,
+            margin = marg)
+q
+plotly_POST(q, filename = "Drug Data Lines Over Time")
+```
+
+Drug Data Entries Combined w/ Reports
+```{r}
+####################
+y <- list(title = "# of Entries or Reports")
+
+p <- plot_ly(all_ratios, 
+             type="scatter", 
+             mode="markers+line",
+             x = ~frxnyear, 
+             y = ~drug,
+             hoverinfo = 'text',
+             line=list(color="blue"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="blue", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$drug),
+             name="# of Drug Entries")
+p <- layout(p, title = "# of Reports or Drug Data Entries Per Quarter",
+            xaxis = x,
+            yaxis = y,            
+            margin = marg,
+            legend = list(x = 0.1, 
+                          y = 0.9)
+            )
+
+
+p <- add_trace(p, 
+          x = ~frxnyear, 
+          y = ~demo, 
+          name="# of Reports", 
+          mode="markers+line",
+          hoverinfo = "text",
+          line=list(color="red"),
+          marker=list(size=8,
+                      color="#FFFFFF",
+                      line=list(color="red",
+                                width=2)),
+          text = ~paste("<b>", 
+                        all_ratios$QY, 
+                        "</b><br />",  
+                        all_ratios$demo))
+
+p
+
+plotly_POST(p, filename = "Drug Data and Reports Over Time")
+```
+
+
+Ratio of Drug Entries to Reports
+```{r}
+################################################
+y <- list(title = "# of Drug Entries per Report", range = c(0, 0.5 + max(all_ratios$drugratio)))
+
+
+p <- plot_ly(all_ratios, 
+             type="scatter", 
+             mode="markers+line",
+             x = ~frxnyear, 
+             y = ~drugratio,
+             hoverinfo = 'text',
+             line=list(color="blue"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="blue", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$drugratio))
+
+p <- layout(p, title = "# of Drug Entries Per Report Over Time",
+            xaxis = x,
+            margin = marg,
+            yaxis = y)
+            
+p
+plotly_POST(p, filename = "Drug Entries per Reports Over Time")
+```
+
+Ratio of Patient Outcomes to Reports
+```{r}
+########################################################
+y <- list(title = "# of Patient Outcomes per Report", range = c(0, 0.2 + max(all_ratios$outcratio)))
+
+p <- plot_ly(all_ratios, 
+             type="scatter", 
+             mode="markers+line",
+             x = ~frxnyear, 
+             y = ~outcratio,
+             hoverinfo = 'text',
+             line=list(color="darkgreen"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="darkgreen", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$outcratio))
+
+p <- layout(p, title = "# of Reported Patient Outcomes Per Report Over Time",
+            xaxis = x,
+            margin = marg,
+            yaxis = y)
+
+p
+
+plotly_POST(p, filename = "Patient Outcomes per Report Over Time")
+```
+
+Ratio of Report Sources to Reports
+```{r}
+########################################################
+y <- list(title = "# of Report Sources per Report", range = c(0, 0.2 + max(all_ratios$rpsrratio)))
+
+p <- plot_ly(all_ratios, 
+             type="scatter", 
+             mode="markers+line",
+             x = ~frxnyear, 
+             y = ~rpsrratio,
+             hoverinfo = 'text',
+             line=list(color="purple"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="purple", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$rpsrratio))
+
+p <- layout(p, title = "# of Report Sources Per Report Over Time",
+            xaxis = x,
+            margin = marg,
+            yaxis = y)
+p
+
+plotly_POST(p, filename = "Report Sources per Report Over Time")
+```
+
+Ratio of Reactions to Reports
+```{r}
+########################################################
+y <- list(title = "# of Reactions per Report", range = c(0, 0.2 + max(all_ratios$reacratio)))
+
+p <- plot_ly(all_ratios, 
+             type="scatter", 
+             mode="markers+line",
+             x = ~frxnyear, 
+             y = ~reacratio,
+             hoverinfo = 'text',
+             line=list(color="orange"),
+             marker=list(size = 8, 
+                    color= "#ffffff", 
+                    line = list(color="orange", 
+                                width=2)),
+             text = ~paste("<b>", 
+                           all_ratios$QY, 
+                           "</b><br />",  
+                           all_ratios$reacratio))
+
+p <- layout(p, title = "# of MedDRA Reactions Reported Per Report Over Time",
+            xaxis = x,
+            margin = marg,
+            yaxis = y)
+
+p
+
+plotly_POST(p, filename = "Adverse Reactions per Report Over Time")
+```
+
